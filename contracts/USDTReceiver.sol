@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./SonmToken.sol";
+import "./MnosToken.sol";
 
 contract USDTReceiver is Ownable {
     IERC20 public usdt;
-    SonmToken public sonmToken;
+    MnosToken public mnosToken;
     address public treasury;
     uint256 public mintPrice;
     uint256 public feePercentage;
@@ -23,11 +23,11 @@ contract USDTReceiver is Ownable {
 
     function mintForUSDT(uint256 amount) public {
         require(usdt.transferFrom(msg.sender, address(this), amount), "USDT transfer failed");
-        sonmToken.mint(msg.sender, amount*mintPrice); // Minting 1:100 ratio of USDT to SonmToken
+        mnosToken.mint(msg.sender, amount*mintPrice); // Minting 1:100 ratio of USDT to MnosToken
     }
 
      function burnAndSendUSDT(uint256 amount) external {
-        sonmToken.burnFrom(msg.sender, amount);
+        mnosToken.burnFrom(msg.sender, amount);
 
         uint256 usdtAmount = amount / 100;
         uint256 fee = usdtAmount / 100 * 5;
@@ -37,8 +37,8 @@ contract USDTReceiver is Ownable {
         require(usdt.transfer(treasury, fee), "fee transfer failed");
     }
 
-    function setToken(address _sonmToken) public onlyOwner {
-        sonmToken = SonmToken(_sonmToken);
+    function setToken(address _mnosToken) public onlyOwner {
+        mnosToken = MnosToken(_mnosToken);
     }
 
     function setMintPrice(uint256 _newPrice) public onlyOwner {

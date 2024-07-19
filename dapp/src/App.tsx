@@ -3,52 +3,85 @@ import { ethers } from 'ethers';
 import { usdtAddress, sonmAddress, receiverAddress } from './constants';
 import { erc20Abi, receiverAbi } from './abis';
 
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
+
 const App: React.FC = () => {
   const [amount, setAmount] = useState<number>(0);
 
   const mintForUSDT = async () => {
-    if (!window.ethereum) return alert('Please install MetaMask');
+    if (!window.ethereum) {
+      alert('MetaMask is not installed. Redirecting to MetaMask installation page.');
+      window.location.href = 'https://metamask.io/download.html';
+      return;
+    }
 
-    const provider = new ethers.JsonRpcProvider(window.ethereum);
-    await provider.send('eth_requestAccounts', []);
-    //const signer = provider.getSigner();
-    
-    const usdtContract = new ethers.Contract(usdtAddress, erc20Abi, provider);
-    const receiverContract = new ethers.Contract(receiverAddress, receiverAbi, provider);
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      await provider.send('eth_requestAccounts', []);
+      const signer = await provider.getSigner();
 
-    const amountInWei = ethers.parseUnits(amount.toString(), 6);
+      const usdtContract = new ethers.Contract(usdtAddress, erc20Abi, signer);
+      const receiverContract = new ethers.Contract(receiverAddress, receiverAbi, signer);
 
-    // Approve USDT transfer
-    const approval = await usdtContract.approve(receiverAddress, amountInWei);
-    await approval.wait();
+      const amountInWei = ethers.parseUnits(amount.toString(), 6);
 
-    // Mint SONM tokens
-    const tx = await receiverContract.mintForUSDT(amountInWei);
-    await tx.wait();
+      // Approve USDT transfer
+      const approval = await usdtContract.approve(receiverAddress, amountInWei);
+      await approval.wait();
 
-    alert('Minting successful!');
+      // Mint SONM tokens
+      const tx = await receiverContract.mintForUSDT(amountInWei);
+      await tx.wait();
+
+      alert('Minting successful!');
+    } catch (error: unknown) {
+      if ((error as any).code === 4001) {
+        alert('Transaction cancelled by user.');
+      } else {
+        console.error(error);
+        alert('An error occurred. Please try again.');
+      }
+    }
   };
 
   const burnAndSendUSDT = async () => {
-    if (!window.ethereum) return alert('Please install MetaMask');
+    if (!window.ethereum) {
+      alert('MetaMask is not installed. Redirecting to MetaMask installation page.');
+      window.location.href = 'https://metamask.io/download.html';
+      return;
+    }
 
-    const provider = new ethers.JsonRpcProvider(window.ethereum);
-    await provider.send('eth_requestAccounts', []);
-    
-    const sonmContract = new ethers.Contract(sonmAddress, erc20Abi, provider);
-    const receiverContract = new ethers.Contract(receiverAddress, receiverAbi, provider);
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      await provider.send('eth_requestAccounts', []);
+      const signer = await provider.getSigner();
 
-    const amountInWei = ethers.parseUnits(amount.toString(), 6); 
+      const sonmContract = new ethers.Contract(sonmAddress, erc20Abi, signer);
+      const receiverContract = new ethers.Contract(receiverAddress, receiverAbi, signer);
 
-    // Approve SONM burn
-    const approval = await sonmContract.approve(receiverAddress, amountInWei);
-    await approval.wait();
+      const amountInWei = ethers.parseUnits(amount.toString(), 6);
 
-    // Burn SONM tokens and send USDT
-    const tx = await receiverContract.burnAndSendUSDT(amountInWei);
-    await tx.wait();
+      // Approve SONM burn
+      const approval = await sonmContract.approve(receiverAddress, amountInWei);
+      await approval.wait();
 
-    alert('Burning successful!');
+      // Burn SONM tokens and send USDT
+      const tx = await receiverContract.burnAndSendUSDT(amountInWei);
+      await tx.wait();
+
+      alert('Burning successful!');
+    } catch (error: unknown) {
+      if ((error as any).code === 4001) {
+        alert('Transaction cancelled by user.');
+      } else {
+        console.error(error);
+        alert('An error occurred. Please try again.');
+      }
+    }
   };
 
   return (

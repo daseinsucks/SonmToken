@@ -1,0 +1,10 @@
+Deployed to Sepolia testnet 07.01.2025 
+
+Mock Token (pseudo-USDT)
+0x1fE4aE3aCa9BFc68070e8602Fa57e2E4e225c358
+
+USDT receiver (mint/burn thingy, we use it to exchange USDT to LAIT)
+0x2C9148dBF8723B2d5037101Be90B0b0ff8727292
+
+LAIToken (we use it for exchange 1 LAIT / 1 LLM token)
+0x3cc6713a209843C4B3d1d994996ac9C1500703b2

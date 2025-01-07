@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USDTReceiver Interaction</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+</head>
+<body>
+    <button id="mintButton">Mint for USDT</button>
+    <button id="burnButton">Burn and Send USDT</button>
+
+    <script>
+        //TODO:
+        //I am doing the barebones edition here. Put those two in .env in your preferable way.
+        const contractAddress = "0x2C9148dBF8723B2d5037101Be90B0b0ff8727292"; 
+        const contractABI = [  {    "inputs": [      {        "internalType": "address",        "name": "_usdt",        "type": "address"      }    ],    "stateMutability": "nonpayable",    "type": "constructor"  },  {    "inputs": [      {        "internalType": "address",        "name": "owner",        "type": "address"      }    ],    "name": "OwnableInvalidOwner",    "type": "error"  },  {    "inputs": [      {        "internalType": "address",        "name": "account",        "type": "address"      }    ],    "name": "OwnableUnauthorizedAccount",    "type": "error"  },  {    "anonymous": false,    "inputs": [      {        "indexed": true,        "internalType": "address",        "name": "previousOwner",        "type": "address"      },      {        "indexed": true,        "internalType": "address",        "name": "newOwner",        "type": "address"      }    ],    "name": "OwnershipTransferred",    "type": "event"  },  {    "inputs": [],    "name": "feePercentage",    "outputs": [      {        "internalType": "uint256",        "name": "",        "type": "uint256"      }    ],    "stateMutability": "view",    "type": "function"  },  {    "inputs": [],    "name": "mintPrice",    "outputs": [      {        "internalType": "uint256",        "name": "",        "type": "uint256"      }    ],    "stateMutability": "view",    "type": "function"  },  {    "inputs": [],    "name": "mnosToken",    "outputs": [      {        "internalType": "contract MnosToken",        "name": "",        "type": "address"      }    ],    "stateMutability": "view",    "type": "function"  },  {    "inputs": [],    "name": "owner",    "outputs": [      {        "internalType": "address",        "name": "",        "type": "address"      }    ],    "stateMutability": "view",    "type": "function"  },  {    "inputs": [],    "name": "renounceOwnership",    "outputs": [],    "stateMutability": "nonpayable",    "type": "function"  },  {    "inputs": [      {        "internalType": "address",        "name": "newOwner",        "type": "address"      }    ],    "name": "transferOwnership",    "outputs": [],    "stateMutability": "nonpayable",    "type": "function"  },  {    "inputs": [],    "name": "treasury",    "outputs": [      {        "internalType": "address",        "name": "",        "type": "address"      }    ],    "stateMutability": "view",    "type": "function"  },  {    "inputs": [],    "name": "usdt",    "outputs": [      {        "internalType": "contract IERC20",        "name": "",        "type": "address"      }    ],    "stateMutability": "view",    "type": "function"  },  {    "inputs": [      {        "internalType": "uint256",        "name": "amount",        "type": "uint256"      }    ],    "name": "mintForUSDT",    "outputs": [],    "stateMutability": "nonpayable",    "type": "function"  },  {    "inputs": [      {        "internalType": "uint256",        "name": "amount",        "type": "uint256"      }    ],    "name": "burnAndSendUSDT",    "outputs": [],    "stateMutability": "nonpayable",    "type": "function"  },  {    "inputs": [      {        "internalType": "address",        "name": "_mnosToken",        "type": "address"      }    ],    "name": "setToken",    "outputs": [],    "stateMutability": "nonpayable",    "type": "function"  },  {    "inputs": [      {        "internalType": "uint256",        "name": "_newPrice",        "type": "uint256"      }    ],    "name": "setMintPrice",    "outputs": [],    "stateMutability": "nonpayable",    "type": "function"  },  {    "inputs": [      {        "internalType": "uint256",        "name": "_newFee",        "type": "uint256"      }    ],    "name": "setFee",    "outputs": [],    "stateMutability": "nonpayable",    "type": "function"  },  {    "inputs": [      {        "internalType": "address",        "name": "_newTreasury",        "type": "address"      }    ],    "name": "setTreasury",    "outputs": [],    "stateMutability": "nonpayable",    "type": "function"  },  {    "inputs": [      {        "internalType": "uint256",        "name": "_newMinMintAmount",        "type": "uint256"      }    ],    "name": "setMinMintAmount",    "outputs": [],    "stateMutability": "nonpayable",    "type": "function"  },  {    "inputs": [],    "name": "getMinMintAmount",    "outputs": [      {        "internalType": "uint256",        "name": "",        "type": "uint256"      }    ],    "stateMutability": "view",    "type": "function"  }]; 
+
+      
+        const web3 = new Web3(window.ethereum);
+        let account;
+
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+        async function connectWallet() {
+            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+            account = accounts[0];
+            console.log("Connected account:", account);
+        }
+
+        async function mintForUSDT() {
+    try {
+        const amount = prompt("Enter USDT amount (e.g., 1 for 1 USDT):");
+        const amountInSmallestUnit = parseFloat(amount) * Math.pow(10, 6); 
+
+        if (isNaN(amountInSmallestUnit) || amountInSmallestUnit <= 0) {
+            alert("Invalid amount. Please enter a valid number.");
+            return;
+        }
+
+        await contract.methods.mintForUSDT(amountInSmallestUnit.toString()).send({ from: account });
+        alert("Mint successful!");
+    } catch (error) {
+        console.error("Error during mint:", error);
+        alert("Mint failed! Check console for details.");
+    }
+}
+
+async function burnAndSendUSDT() {
+    try {
+        const amount = prompt("Enter MNOS amount to burn (e.g., 1 for 1 MNOS):");
+        const amountInSmallestUnit = parseFloat(amount) * Math.pow(10, 6);
+
+        if (isNaN(amountInSmallestUnit) || amountInSmallestUnit <= 0) {
+            alert("Invalid amount. Please enter a valid number.");
+            return;
+        }
+
+        await contract.methods.burnAndSendUSDT(amountInSmallestUnit.toString()).send({ from: account });
+        alert("Burn and transfer successful!");
+    } catch (error) {
+        console.error("Error during burn:", error);
+        alert("Burn failed! Check console for details.");
+    }
+}
+
+        document.getElementById("mintButton").addEventListener("click", async () => {
+            if (!account) await connectWallet();
+            mintForUSDT();
+        });
+
+        document.getElementById("burnButton").addEventListener("click", async () => {
+            if (!account) await connectWallet();
+            burnAndSendUSDT();
+        });
+    </script>
+</body>
+</html>

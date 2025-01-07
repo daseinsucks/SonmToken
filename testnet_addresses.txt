@@ -6,5 +6,5 @@ Mock Token (pseudo-USDT)
 USDT receiver (mint/burn thingy, we use it to exchange USDT to LAIT)
 0x2C9148dBF8723B2d5037101Be90B0b0ff8727292
 
-LAIToken (we use it for exchange 1 LAIT / 1 LLM token)
+LAIToken (we use it for exchange 1 LAIT / 1 LLM token. We listen to events on this address.)
 0x3cc6713a209843C4B3d1d994996ac9C1500703b2
